@@ -95,6 +95,10 @@ export default {
     width: 100%;
   }
 
+  input::placeholder, .el-icon-date, .el-icon-map-location {
+    color: #606266 !important;
+  }
+
   .full-width {
     width: 100%;
   }
