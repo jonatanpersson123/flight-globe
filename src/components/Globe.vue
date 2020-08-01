@@ -193,7 +193,9 @@ export default {
 
         updateCountries() {
             let filteredTrips = this.quotes.filter(q => q.InboundLeg && q.OutboundLeg)
-            if (this.budget) {
+            
+            // show all if no budget is set
+            if (this.budget != null) {
                 filteredTrips = filteredTrips.filter(q => q.MinPrice <= this.budget)
             }
             if (this.directOnly) {

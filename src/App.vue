@@ -51,7 +51,7 @@ export default {
   methods: {
     
     search() {
-      if (this.origin?.code && this.departDate) {
+      if (this.origin?.code && this.departDate && this.returnDate) {
         const queryString = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/SE/SEK/en-US/${this.origin.code}/anywhere/${this.departDate}/${this.returnDate ? this.returnDate : ''}`
         axios.get(queryString).then(response => {
           this.quotes = response.data.Quotes
