@@ -56,8 +56,6 @@ export default {
         axios.get(queryString).then(response => {
           this.quotes = response.data.Quotes
           this.places = response.data.Places
-          console.log(this.quotes, 'Quotes')
-          console.log(this.places, 'Places')
         }).catch(error => console.log(error)) 
       }
     },
@@ -68,25 +66,20 @@ export default {
     updateOrigin(origin) {
       this.origin = origin
       this.search()
-      console.log(origin)
     },
     updateDepartDate(date) {
       this.departDate = date
       this.search()
-      console.log(date)
     },
     updateReturnDate(date) {
       this.returnDate = date
       this.search()
-      console.log(date)
     },
     updateDirectFlights(directOnly) {
       this.directOnly = directOnly
-      console.log(directOnly)
     },
     updateBudget(budget) {
       this.budget = budget
-      console.log(budget)
     },
   }
 }

@@ -106,19 +106,19 @@ export default {
         setupLights() {
             this.scene.add(new THREE.AmbientLight(0x555555))
             
-            var directionalLight1 = new THREE.DirectionalLight(0xaaaaaa, 0.5);
+            const directionalLight1 = new THREE.DirectionalLight(0xaaaaaa, 0.5);
             directionalLight1.position.set(-1, 1, 1).normalize();
             this.scene.add(directionalLight1);
 
-            var directionalLight2 = new THREE.DirectionalLight(0xaaaaaa, 0.5);
+            const directionalLight2 = new THREE.DirectionalLight(0xaaaaaa, 0.5);
             directionalLight2.position.set(-1, 1, -1).normalize();
             this.scene.add(directionalLight2);
 
-            var directionalLight3 = new THREE.DirectionalLight(0xaaaaaa, 0.5);
+            const directionalLight3 = new THREE.DirectionalLight(0xaaaaaa, 0.5);
             directionalLight3.position.set(1, 1, -1).normalize();
             this.scene.add(directionalLight3);
 
-            var directionalLight4 = new THREE.DirectionalLight(0xaaaaaa, 0.5);
+            const directionalLight4 = new THREE.DirectionalLight(0xaaaaaa, 0.5);
             directionalLight4.position.set(1, 1, 1).normalize();
             this.scene.add(directionalLight4);
         },
@@ -164,7 +164,6 @@ export default {
                 color = new THREE.Color(0x000000)
                 console.log('could not found matching country', countryCode)
             } else if (contientIndex !== -1) {
-                // Temp fix for not using green colors on contients
                 // TODO - make color matrix for continents
                 contientIndex = contientIndex === 2 ? 4 : contientIndex
                 color.setHSL(
@@ -259,7 +258,7 @@ export default {
         },
         origin(newVal, oldVal) {
             if (oldVal != null) {
-                // TODO rotate so country is focused in globe
+                // TODO rotate to origin country
                 // Restore color of previous selected origin
                 const contientColor = this.getColorBasedOnContient(oldVal.countryCode)
                 this.updateCountryColor(oldVal.countryCode, contientColor)
