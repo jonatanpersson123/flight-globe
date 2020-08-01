@@ -201,12 +201,12 @@ export default {
             if (this.directOnly) {
                 filteredTrips = filteredTrips.filter(q => q.Direct)
             }
-            const filteredCountries = filteredTrips.map(t => {
+            const filteredCountries = filteredTrips.map(q => {
                 const countryNameForStation = this.places.find(p => p.PlaceId === t.OutboundLeg.DestinationId).CountryName
                 const skyscannerCode = this.places.find(p => p.Type === 'Country' && p.Name === countryNameForStation).SkyscannerCode
-                return {name: countryNameForStation, code: skyscannerCode}
+                return {name: countryNameForStation, code: skyscannerCode, quote: q}
             }).filter(c => c.code !== this.origin.countryCode)
-            const uniqueCountries = [...new Set(filteredCountries)] 
+            const uniqueCountries = [...new Set(filteredCountries)]
             this.handleSelectedCountries(this.resultCountries, uniqueCountries)
             this.resultCountries = uniqueCountries
         },
@@ -275,6 +275,7 @@ export default {
                 if(newVal != null) {
                     newVal.scale.set(this.hoverScale, 1.01, 1.01)
                 }
+                console.log(resultCountries)
                 this.$emit('onCountryChange', newVal != null ? newVal.userData.country : '')
             }
         }
