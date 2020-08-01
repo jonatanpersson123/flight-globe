@@ -202,30 +202,29 @@ export default {
                 filteredTrips = filteredTrips.filter(q => q.Direct)
             }
             const filteredCountries = filteredTrips.map(q => {
-                const countryNameForStation = this.places.find(p => p.PlaceId === t.OutboundLeg.DestinationId).CountryName
+                const countryNameForStation = this.places.find(p => p.PlaceId === q.OutboundLeg.DestinationId).CountryName
                 const skyscannerCode = this.places.find(p => p.Type === 'Country' && p.Name === countryNameForStation).SkyscannerCode
                 return {name: countryNameForStation, code: skyscannerCode, quote: q}
             }).filter(c => c.code !== this.origin.countryCode)
-            const uniqueCountries = [...new Set(filteredCountries)]
-            this.handleSelectedCountries(this.resultCountries, uniqueCountries)
-            this.resultCountries = uniqueCountries
+            this.handleSelectedCountries(
+                [...new Set(this.resultCountries.map(country => country.code))], 
+                [...new Set(filteredCountries.map(country => country.code))])
+            this.resultCountries = filteredCountries
         },
 
-        handleSelectedCountries(previousCountries, newCountries) {
-            const previousSelectedCountryCodes = previousCountries.map(country => country.code)
-            const newSelectedCountryCodes = newCountries.map(country => country.code)
-            const toBeAdded = newCountries.filter(country => !previousSelectedCountryCodes.includes(country.code))
-            const toBeRemoved = previousCountries.filter(country => !newSelectedCountryCodes.includes(country.code))
+        handleSelectedCountries(previousCountryCodes, newCountryCodes) {
+            const toBeAdded = newCountryCodes.filter(countryCode => !previousCountryCodes.includes(countryCode))
+            const toBeRemoved = previousCountryCodes.filter(countryCode => !newCountryCodes.includes(countryCode))
 
-            toBeAdded.forEach(country => {
+            toBeAdded.forEach(countryCode => {
                 const color = new THREE.Color('green')
                 color.setHSL(0.285, 0.65, Math.random() / 7 + 0.4)
-                this.updateCountryColor(country.code, color)
+                this.updateCountryColor(countryCode, color)
             })
 
-            toBeRemoved.forEach(country => {
-                const color = this.getColorBasedOnContient(country.code)
-                this.updateCountryColor(country.code, color)
+            toBeRemoved.forEach(countryCode => {
+                const color = this.getColorBasedOnContient(countryCode)
+                this.updateCountryColor(countryCode, color)
             })
         },
 
@@ -275,7 +274,6 @@ export default {
                 if(newVal != null) {
                     newVal.scale.set(this.hoverScale, 1.01, 1.01)
                 }
-                console.log(resultCountries)
                 this.$emit('onCountryChange', newVal != null ? newVal.userData.country : '')
             }
         }
