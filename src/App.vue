@@ -13,7 +13,8 @@
       :budget="budget"
       :directOnly="directOnly"
       :origin="origin"
-      @onCountryChange="updateCountry($event)">
+      @onCountryChange="updateCountry($event)"
+      @onCountryClicked="showCountryQuotes($event)">
     </Globe>
     <CountryInfo :countryName="countryName" />
   </div>
@@ -35,6 +36,7 @@ export default {
 
   data: () => ({
     countryName: '',
+    showCountryQuotesDialog: false,
     origin: {
       code: null,
       countryCode: null,
@@ -45,14 +47,14 @@ export default {
     directOnly: null,
     budget: null,
     quotes: [],
-    places: []
+    places: [],
   }),
 
   methods: {
     
     search() {
       if (this.origin?.code && this.departDate && this.returnDate) {
-        const queryString = `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/SE/SEK/en-US/${this.origin.code}/anywhere/${this.departDate}/${this.returnDate ? this.returnDate : ''}`
+        const queryString = this.getQueryString()
         axios.get(queryString).then(response => {
           this.quotes = response.data.Quotes
           this.places = response.data.Places
@@ -60,8 +62,21 @@ export default {
       }
     },
 
+    getQueryString(destination) {
+      return `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/SE/SEK/en-US/${this.origin.code}/${destination ? destination : 'anywhere'}/${this.departDate}/${this.returnDate ? this.returnDate : ''}`
+    },
+
     updateCountry(countryName) {
       this.countryName = countryName
+    },
+    showCountryQuotes(country) {
+      this.showCountryQuotesDialog = true
+      const queryString = this.getQueryString(country.code)
+      axios.get(queryString).then(response => {
+        // TODO - Show airport quotes in dialog
+        console.log(response)
+      }).catch(error => console.log(error)) 
+
     },
     updateOrigin(origin) {
       this.origin = origin

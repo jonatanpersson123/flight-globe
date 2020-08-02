@@ -61,6 +61,7 @@ export default {
             this.setupControls()
 
             document.addEventListener('mousemove', this.onDocumentMouseMove, false)
+            document.addEventListener('mousedown', this.onDocumentMouseDown, false)
             document.addEventListener('keyup', this.onMouseKeyUp, false)
         },
 
@@ -75,10 +76,18 @@ export default {
             const raycaster = new THREE.Raycaster(this.camera.position, vector.sub(this.camera.position).normalize())
             const intersects = raycaster.intersectObject(this.baseGlobe, true)
             if (intersects.length > 0 && intersects[0].object.name === "land") {
+                document.body.style.cursor = 'pointer'
                 this.controls.autoRotate = false
                 this.intersectedObject = intersects[0].object
             } else {
                 this.intersectedObject = null
+                document.body.style.cursor = 'default'
+            }
+        },
+
+        onDocumentMouseDown(event) {
+            if (this.intersectedObject) {
+                this.$emit('onCountryClicked', this.intersectedObject.userData)
             }
         },
 
@@ -202,13 +211,22 @@ export default {
                 filteredTrips = filteredTrips.filter(q => q.Direct)
             }
             const filteredCountries = filteredTrips.map(q => {
-                const countryNameForStation = this.places.find(p => p.PlaceId === q.OutboundLeg.DestinationId).CountryName
-                const skyscannerCode = this.places.find(p => p.Type === 'Country' && p.Name === countryNameForStation).SkyscannerCode
-                return {name: countryNameForStation, code: skyscannerCode, quote: q}
+                const stationInfo = this.places.find(p => p.Type === 'Station' && p.PlaceId === q.OutboundLeg.DestinationId)
+                const countryInfo = this.places.find(p => p.Type === 'Country' && p.Name === stationInfo.CountryName)
+                return {
+                    country: {
+                        name: countryInfo.Name,
+                        code: countryInfo.SkyscannerCode,
+                    },
+                   airport: {
+                       name: stationInfo.Name,
+                       code: stationInfo.SkyscannerCode
+                   }
+                }
             }).filter(c => c.code !== this.origin.countryCode)
             this.handleSelectedCountries(
-                [...new Set(this.resultCountries.map(country => country.code))], 
-                [...new Set(filteredCountries.map(country => country.code))])
+                [...new Set(this.resultCountries.map(data => data.country.code))], 
+                [...new Set(filteredCountries.map(data => data.country.code))])
             this.resultCountries = filteredCountries
         },
 
