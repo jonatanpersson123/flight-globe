@@ -13,10 +13,7 @@ import Tessalator3D from '../utils/tessalator3d'
 export default {
     name: 'Globe',
     props: {
-        quotes: Array,
-        places: Array,
-        budget: Number,
-        directOnly: Boolean,
+        selectedCountries: Array,
         origin: {
             code: String,
             countryCode: String,
@@ -201,33 +198,6 @@ export default {
         },
 
         updateCountries() {
-            let filteredTrips = this.quotes.filter(q => q.InboundLeg && q.OutboundLeg)
-            
-            // show all if no budget is set
-            if (this.budget != null) {
-                filteredTrips = filteredTrips.filter(q => q.MinPrice <= this.budget)
-            }
-            if (this.directOnly) {
-                filteredTrips = filteredTrips.filter(q => q.Direct)
-            }
-            const filteredCountries = filteredTrips.map(q => {
-                const stationInfo = this.places.find(p => p.Type === 'Station' && p.PlaceId === q.OutboundLeg.DestinationId)
-                const countryInfo = this.places.find(p => p.Type === 'Country' && p.Name === stationInfo.CountryName)
-                return {
-                    country: {
-                        name: countryInfo.Name,
-                        code: countryInfo.SkyscannerCode,
-                    },
-                   airport: {
-                       name: stationInfo.Name,
-                       code: stationInfo.SkyscannerCode
-                   }
-                }
-            }).filter(c => c.code !== this.origin.countryCode)
-            this.handleSelectedCountries(
-                [...new Set(this.resultCountries.map(data => data.country.code))], 
-                [...new Set(filteredCountries.map(data => data.country.code))])
-            this.resultCountries = filteredCountries
         },
 
         handleSelectedCountries(previousCountryCodes, newCountryCodes) {
@@ -266,14 +236,9 @@ export default {
     },
 
     watch: {
-        quotes(newVal) {
-            this.updateCountries()
-        },
-        budget(newVal) {
-            this.updateCountries()
-        },
-        directOnly(newVal) {
-            this.updateCountries()
+        selectedCountries(newVal, oldVal) {
+            this.handleSelectedCountries(oldVal, newVal)
+            this.resultCountries = newVal
         },
         origin(newVal, oldVal) {
             if (oldVal != null) {

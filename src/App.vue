@@ -8,10 +8,7 @@
       @onBudgetChange="updateBudget($event)"
     ></SearchControls>
     <Globe 
-      :quotes="quotes"
-      :places="places"
-      :budget="budget"
-      :directOnly="directOnly"
+      :selectedCountries="selectedCountries"
       :origin="origin"
       @onCountryChange="updateCountry($event)"
       @onCountryClicked="showCountryQuotes($event)">
@@ -37,6 +34,7 @@ export default {
   data: () => ({
     countryName: '',
     showCountryQuotesDialog: false,
+    selectedCountries: [],
     origin: {
       code: null,
       countryCode: null,
@@ -51,15 +49,50 @@ export default {
   }),
 
   methods: {
-    
     search() {
       if (this.origin?.code && this.departDate && this.returnDate) {
         const queryString = this.getQueryString()
         axios.get(queryString).then(response => {
           this.quotes = response.data.Quotes
           this.places = response.data.Places
+          const quotes = this.getQuotesForAllCountries(this.quotes, this.places)
+          this.updateSelectedCountries()
         }).catch(error => console.log(error)) 
       }
+    },
+
+    getQuotesForCountry(quotes) {
+      let filteredTrips = quotes.filter(q => q.InboundLeg && q.OutboundLeg)
+      return this.getQuoteInfo(filteredTrips)
+    },
+
+    getQuotesForAllCountries(quotes, places, budget, directOnly) {
+      let filteredQuotes = quotes.filter(q => q.InboundLeg && q.OutboundLeg)
+      // show all if no budget is set
+      if (budget != null) {
+          filteredQuotes = filteredQuotes.filter(q => q.MinPrice <= this.budget)
+      }
+      if (directOnly) {
+          filteredQuotes = filteredQuotes.filter(q => q.Direct)
+      }
+      return this.getQuotesInfo(filteredQuotes, places)
+    },
+
+    getQuotesInfo(quotes, places) {
+        return quotes.map(q => {
+          const stationInfo = places.find(p => p.Type === 'Station' && p.PlaceId === q.OutboundLeg.DestinationId)
+          const countryInfo = places.find(p => p.Type === 'Country' && p.Name === stationInfo.CountryName)
+          return {
+              country: {
+                  name: countryInfo.Name,
+                  code: countryInfo.SkyscannerCode,
+              },
+              airport: {
+                  name: stationInfo.Name,
+                  code: stationInfo.SkyscannerCode
+              }
+          }
+        }).filter(info => info.country.code !== this.origin.countryCode)
     },
 
     getQueryString(destination) {
@@ -92,10 +125,20 @@ export default {
     },
     updateDirectFlights(directOnly) {
       this.directOnly = directOnly
+      this.updateSelectedCountries()
     },
     updateBudget(budget) {
       this.budget = budget
+      this.updateSelectedCountries()
     },
+    updateSelectedCountries() {
+      if (this.quotes.length > 0 && this.places.length > 0) {
+        const quotes = this.getQuotesForAllCountries(this.quotes, this.places, this.budget, this.directOnly)
+        this.selectedCountries = [...new Set(quotes.map(data => data.country.code))]
+      } else {
+        this.selectedCountries = []
+      }
+    }
   }
 }
 </script>
