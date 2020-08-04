@@ -14,6 +14,17 @@
       @onCountryClicked="showCountryQuotes($event)">
     </Globe>
     <CountryInfo :countryName="countryName" />
+    <el-dialog v-if="countryQuotesDialogData"
+      :modal="false"
+      :title="countryQuotesDialogData.countryData.country + ' (' + countryQuotesDialogData.countryData.code + ')'" 
+      :visible.sync="showCountryQuotesDialog">
+        <el-table :data="countryQuotesDialogData.airportsData">
+          <el-table-column property="name" label="Name" width="150"></el-table-column>
+          <el-table-column property="code" label="Code" width="70"></el-table-column>
+          <el-table-column property="directPrice" label="Direct" width="100"></el-table-column>
+          <el-table-column property="indirectPrice" label="Indirect" width="100"></el-table-column>
+      </el-table>
+  </el-dialog>
   </div>
 </template>
 
@@ -34,6 +45,7 @@ export default {
   data: () => ({
     countryName: '',
     showCountryQuotesDialog: false,
+    countryQuotesDialogData: null,
     selectedCountries: [],
     origin: {
       code: null,
@@ -55,15 +67,13 @@ export default {
         axios.get(queryString).then(response => {
           this.quotes = response.data.Quotes
           this.places = response.data.Places
-          const quotes = this.getQuotesForAllCountries(this.quotes, this.places)
           this.updateSelectedCountries()
         }).catch(error => console.log(error)) 
       }
     },
 
-    getQuotesForCountry(quotes) {
-      let filteredTrips = quotes.filter(q => q.InboundLeg && q.OutboundLeg)
-      return this.getQuoteInfo(filteredTrips)
+    getQuotesForCountry(quotes, places) {
+      return this.getQuotesInfo(quotes.filter(q => q.InboundLeg && q.OutboundLeg), places)
     },
 
     getQuotesForAllCountries(quotes, places, budget, directOnly) {
@@ -84,12 +94,14 @@ export default {
           const countryInfo = places.find(p => p.Type === 'Country' && p.Name === stationInfo.CountryName)
           return {
               country: {
-                  name: countryInfo.Name,
-                  code: countryInfo.SkyscannerCode,
+                name: countryInfo ? countryInfo.Name : stationInfo.CountryName,
+                code: countryInfo ? countryInfo.SkyscannerCode : null
               },
               airport: {
-                  name: stationInfo.Name,
-                  code: stationInfo.SkyscannerCode
+                name: stationInfo.Name,
+                code: stationInfo.SkyscannerCode,
+                minPrice: q.MinPrice,
+                direct: q.Direct
               }
           }
         }).filter(info => info.country.code !== this.origin.countryCode)
@@ -102,14 +114,41 @@ export default {
     updateCountry(countryName) {
       this.countryName = countryName
     },
-    showCountryQuotes(country) {
-      this.showCountryQuotesDialog = true
-      const queryString = this.getQueryString(country.code)
-      axios.get(queryString).then(response => {
-        // TODO - Show airport quotes in dialog
-        console.log(response)
-      }).catch(error => console.log(error)) 
+    showCountryQuotes(countryData) {
+      if(this.origin.code) {
+        this.showCountryQuotesDialog = true
+        const queryString = this.getQueryString(countryData.code)
+        axios.get(queryString).then(response => {
+          const quotesInfo = this.getQuotesForCountry(response.data.Quotes, response.data.Places)
+          const airportsData = this.getQuotesForAirports(quotesInfo)
+          this.countryQuotesDialogData = { countryData, airportsData }
+          this.showCountryQuotesDialog = true
+        }).catch(error => console.log(error)) 
+      }
+    },
+    getQuotesForAirports(quotesInfo) {
+      const airports = quotesInfo.map(q => q.airport)
 
+      const airportsData = []
+      airports.forEach(airport => {
+        const index = airportsData.map(ad => ad.code).indexOf(airport.code)
+        if(index >= 0) {
+          const a = airportsData[index]
+          if(airport.direct) {
+            a.directPrice = airport.minPrice
+          } else {
+            a.indirectPrice = airport.minPrice
+          }
+        } else {
+          airportsData.push({
+            code: airport.code,
+            name: airport.name,
+            directPrice: airport.direct ? airport.minPrice : null,
+            indirectPrice: !airport.direct ? airport.minPrice : null
+          })
+        }
+      })
+      return airportsData
     },
     updateOrigin(origin) {
       this.origin = origin
@@ -155,6 +194,14 @@ export default {
 
   input::placeholder, .el-icon-date, .el-icon-map-location {
     color: #606266 !important;
+  }
+
+  .el-dialog {
+    position: absolute !important;
+    top: 10px;
+    right: 10px;
+    margin: 0 !important;
+    width: unset !important;
   }
 
   .full-width {
