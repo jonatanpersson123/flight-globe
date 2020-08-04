@@ -21,6 +21,7 @@ export default {
         }
      },
     data: () => ({
+        globeElement: null,
         renderer: null,
         scene: null,
         camera: null,
@@ -35,7 +36,8 @@ export default {
     }),
     methods: {
         initGlobe() {
-            this.setupRenderer()
+            const globeElement = document.getElementById('globe')
+            this.setupRenderer(globeElement)
             this.scene = new THREE.Scene()
             this.setupCamera()
             this.setupLights()
@@ -57,12 +59,13 @@ export default {
 
             this.setupControls()
 
-            document.addEventListener('mousemove', this.onDocumentMouseMove, false)
-            document.addEventListener('mousedown', this.onDocumentMouseDown, false)
+            globeElement.addEventListener('mousemove', this.onGlobeMouseMove, false)
+            globeElement.addEventListener('mouseup', this.onGlobeMouseUp, false)
+            globeElement.addEventListener('mouseleave', this.onGlobeMouseLeave, false)
             document.addEventListener('keyup', this.onMouseKeyUp, false)
         },
 
-        onDocumentMouseMove(event) {
+        onGlobeMouseMove(event) {
             event.preventDefault()
 
             const mouseX = (event.clientX / window.innerWidth) * 2 - 1
@@ -82,7 +85,12 @@ export default {
             }
         },
 
-        onDocumentMouseDown(event) {
+        onGlobeMouseLeave(event) {
+            document.body.style.cursor = 'default'
+            this.intersectedObject = null
+        },
+
+        onGlobeMouseUp(event) {
             if (this.intersectedObject) {
                 this.$emit('onCountryClicked', this.intersectedObject.userData)
             }
@@ -94,12 +102,12 @@ export default {
             }
         },
         
-        setupRenderer() {
+        setupRenderer(globeElement) {
             this.renderer = new THREE.WebGLRenderer()
             this.renderer.setClearColor(0x000000, 0.0)
             this.renderer.setPixelRatio(window.devicePixelRatio)
             this.renderer.setSize(window.innerWidth, window.innerHeight)
-            document.body.appendChild(this.renderer.domElement)
+            globeElement.appendChild(this.renderer.domElement)
         },
         
         setupCamera() {
