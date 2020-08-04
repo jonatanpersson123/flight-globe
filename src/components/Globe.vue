@@ -167,7 +167,7 @@ export default {
             this.controls.autoRotateSpeed = 1.0;
             setTimeout(() => {
                 this.controls.autoRotate = true
-            }, 3000)
+            }, 500)
         },
 
         getColorBasedOnContient(countryCode) {
