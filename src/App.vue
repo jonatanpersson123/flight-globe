@@ -18,7 +18,7 @@
       :modal="false"
       :title="countryQuotesDialogData.countryData.country + ' (' + countryQuotesDialogData.countryData.code + ')'" 
       :visible.sync="showCountryQuotesDialog">
-        <el-table :data="countryQuotesDialogData.airportsData">
+        <el-table :data="countryQuotesDialogData.airportsData" @row-click="navigateToSkyscannerFlights($event)">
           <el-table-column property="name" label="Name" width="150"></el-table-column>
           <el-table-column property="code" label="Code" width="70"></el-table-column>
           <el-table-column property="directPrice" label="Direct" width="100"></el-table-column>
@@ -177,7 +177,10 @@ export default {
       } else {
         this.selectedCountries = []
       }
-    }
+    },
+    navigateToSkyscannerFlights(airportData) {
+      window.open(`https://www.skyscanner.se/transport/flights/${this.origin.code}/${airportData.code}/${this.departDate}/${this.returnDate}/?adultsv2=1&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false`)
+    },
   }
 }
 </script>
@@ -202,6 +205,10 @@ export default {
     right: 10px;
     margin: 0 !important;
     width: unset !important;
+  }
+
+  .el-table tbody tr {
+    cursor: pointer;
   }
 
   .full-width {
