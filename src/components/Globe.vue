@@ -32,7 +32,10 @@ export default {
         hoverScale: 1.01,
         continents: ["EU", "AN", "AS", "OC", "SA", "AF", "NA"],
         resultCountries: [],
-        globeCountries: []
+        globeCountries: [],
+        startMouseX: 0,
+        startMouseY: 0,
+        delta: 6
     }),
     methods: {
         initGlobe() {
@@ -60,6 +63,7 @@ export default {
             this.setupControls()
 
             globeElement.addEventListener('mousemove', this.onGlobeMouseMove, false)
+            globeElement.addEventListener('mousedown', this.onGlobeMouseDown, false)
             globeElement.addEventListener('mouseup', this.onGlobeMouseUp, false)
             globeElement.addEventListener('mouseleave', this.onGlobeMouseLeave, false)
             document.addEventListener('keyup', this.onMouseKeyUp, false)
@@ -85,13 +89,21 @@ export default {
             }
         },
 
+        onGlobeMouseDown(event) {
+            this.startMouseX = event.pageX
+            this.startMouseY = event.pageY
+        },
+
         onGlobeMouseLeave(event) {
             document.body.style.cursor = 'default'
             this.intersectedObject = null
         },
 
         onGlobeMouseUp(event) {
-            if (this.intersectedObject) {
+            const diffX = Math.abs(event.pageX - this.startMouseX)
+            const diffY = Math.abs(event.pageY - this.startMouseY)
+
+            if (this.intersectedObject && diffX < this.delta && diffY < this.delta) {
                 this.$emit('onCountryClicked', this.intersectedObject.userData)
             }
         },
