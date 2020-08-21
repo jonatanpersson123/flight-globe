@@ -115,7 +115,7 @@ export default {
       this.countryName = countryName
     },
     showCountryQuotes(countryData) {
-      if(this.origin.code) {
+      if(this.origin.code && this.departDate && this.returnDate) {
         this.showCountryQuotesDialog = true
         const queryString = this.getQueryString(countryData.code)
         axios.get(queryString).then(response => {
@@ -179,7 +179,9 @@ export default {
       }
     },
     navigateToSkyscannerFlights(airportData) {
-      window.open(`https://www.skyscanner.se/transport/flights/${this.origin.code}/${airportData.code}/${this.departDate}/${this.returnDate}/?adultsv2=1&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false`)
+      if(airportData && this.origin.code && this.departDate && this.returnDate) {
+        window.open(`https://www.skyscanner.se/transport/flights/${this.origin.code}/${airportData.code}/${this.departDate}/${this.returnDate}/?adultsv2=1&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false`)
+      }
     },
   }
 }
