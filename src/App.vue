@@ -7,24 +7,20 @@
       @onDirectFlightsChange="updateDirectFlights($event)"
       @onBudgetChange="updateBudget($event)"
     ></SearchControls>
+    <CountryInfo :countryName="countryName" />
+    <CountryQuotesDialog
+      v-if="countryQuotesDialogData"
+      :show="showCountryQuotesDialog" 
+      :countryQuotesData="countryQuotesDialogData" 
+      @onDialogClose="closeDialog()"
+      @navigateToFlights="navigateToSkyscannerFlights($event)"
+    ></CountryQuotesDialog>
     <Globe 
       :selectedCountries="selectedCountries"
       :origin="origin"
       @onCountryChange="updateCountry($event)"
       @onCountryClicked="showCountryQuotes($event)">
     </Globe>
-    <CountryInfo :countryName="countryName" />
-    <el-dialog v-if="countryQuotesDialogData"
-      :modal="false"
-      :title="countryQuotesDialogData.countryData.country + ' (' + countryQuotesDialogData.countryData.code + ')'" 
-      :visible.sync="showCountryQuotesDialog">
-        <el-table :data="countryQuotesDialogData.airportsData" @row-click="navigateToSkyscannerFlights($event)">
-          <el-table-column property="name" label="Name" width="150"></el-table-column>
-          <el-table-column property="code" label="Code" width="70"></el-table-column>
-          <el-table-column property="directPrice" label="Direct" width="100"></el-table-column>
-          <el-table-column property="indirectPrice" label="Indirect" width="100"></el-table-column>
-      </el-table>
-  </el-dialog>
   </div>
 </template>
 
@@ -32,6 +28,7 @@
 import SearchControls from './components/SearchControls'
 import Globe from './components/Globe'
 import CountryInfo from './components/CountryInfo'
+import CountryQuotesDialog from './components/CountryQuotesDialog'
 import axios from 'axios'
 
 export default {
@@ -39,7 +36,8 @@ export default {
   components: {
     SearchControls,
     Globe,
-    CountryInfo
+    CountryInfo,
+    CountryQuotesDialog
   },
 
   data: () => ({
@@ -116,7 +114,6 @@ export default {
     },
     showCountryQuotes(countryData) {
       if(this.origin.code && this.departDate && this.returnDate) {
-        this.showCountryQuotesDialog = true
         const queryString = this.getQueryString(countryData.code)
         axios.get(queryString).then(response => {
           const quotesInfo = this.getQuotesForCountry(response.data.Quotes, response.data.Places)
@@ -178,11 +175,14 @@ export default {
         this.selectedCountries = []
       }
     },
-    navigateToSkyscannerFlights(airportData) {
-      if(airportData && this.origin.code && this.departDate && this.returnDate) {
-        window.open(`https://www.skyscanner.se/transport/flights/${this.origin.code}/${airportData.code}/${this.departDate}/${this.returnDate}/?adultsv2=1&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false`)
+      navigateToSkyscannerFlights(airportCode) {
+      if(airportCode && this.origin.code && this.departDate && this.returnDate) {
+        window.open(`https://www.skyscanner.se/transport/flights/${this.origin.code}/${airportCode}/${this.departDate}/${this.returnDate}/?adultsv2=1&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false`)
       }
     },
+    closeDialog() {
+      this.showCountryQuotesDialog = false
+    }
   }
 }
 </script>
@@ -207,10 +207,21 @@ export default {
     right: 10px;
     margin: 0 !important;
     width: unset !important;
+    background-color: #135384 !important;
+    border-radius: 4px;
+    min-width: 400px !important;
   }
 
-  .el-table tbody tr {
-    cursor: pointer;
+  .el-dialog__body {
+    padding-top: 10px !important;
+  }
+
+  .el-dialog__title {
+    color: white !important;
+  }
+
+  .el-dialog__close {
+    color: white !important;
   }
 
   .full-width {
@@ -231,4 +242,10 @@ export default {
   .flex1 {
     flex: 1;
   }
+
+  /* @media only screen and (min-width: 2000px) {
+    #search-container {
+      left: 10% !important;
+    }
+  } */
 </style>
