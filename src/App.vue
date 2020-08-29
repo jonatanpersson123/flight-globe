@@ -6,6 +6,7 @@
       @onReturnDateChange="updateReturnDate($event)"
       @onDirectFlightsChange="updateDirectFlights($event)"
       @onBudgetChange="updateBudget($event)"
+      @onTripModeChange="updateTripMode($event)"
     ></SearchControls>
     <CountryInfo :countryName="countryName" />
     <CountryQuotesDialog
@@ -45,6 +46,7 @@ export default {
     showCountryQuotesDialog: false,
     countryQuotesDialogData: null,
     selectedCountries: [],
+    tripMode: null,
     origin: {
       code: null,
       countryCode: null,
@@ -60,7 +62,7 @@ export default {
 
   methods: {
     search() {
-      if (this.origin?.code && this.departDate && this.returnDate) {
+      if (this.isValidSearch()) {
         const queryString = this.getQueryString()
         axios.get(queryString).then(response => {
           this.quotes = response.data.Quotes
@@ -71,11 +73,12 @@ export default {
     },
 
     getQuotesForCountry(quotes, places) {
-      return this.getQuotesInfo(quotes.filter(q => q.InboundLeg && q.OutboundLeg), places)
+      const filteredQuotes = this.tripMode === 'round' ? quotes.filter(q => q.InboundLeg && q.OutboundLeg) : quotes 
+      return this.getQuotesInfo(filteredQuotes, places)
     },
 
     getQuotesForAllCountries(quotes, places, budget, directOnly) {
-      let filteredQuotes = quotes.filter(q => q.InboundLeg && q.OutboundLeg)
+      let filteredQuotes = quotes
       // show all if no budget is set
       if (budget != null) {
           filteredQuotes = filteredQuotes.filter(q => q.MinPrice <= this.budget)
@@ -109,11 +112,19 @@ export default {
       return `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/SE/SEK/en-US/${this.origin.code}/${destination ? destination : 'anywhere'}/${this.departDate}/${this.returnDate ? this.returnDate : ''}`
     },
 
+    isValidSearch() {
+      if (this.tripMode === 'round') {
+        return this.origin?.code && this.departDate && this.returnDate
+      } else {
+        return this.origin?.code && this.departDate
+      }
+    },
+
     updateCountry(countryName) {
       this.countryName = countryName
     },
     showCountryQuotes(countryData) {
-      if(this.origin.code && this.departDate && this.returnDate) {
+      if(this.isValidSearch()) {
         const queryString = this.getQueryString(countryData.code)
         axios.get(queryString).then(response => {
           const quotesInfo = this.getQuotesForCountry(response.data.Quotes, response.data.Places)
@@ -167,6 +178,9 @@ export default {
       this.budget = budget
       this.updateSelectedCountries()
     },
+    updateTripMode(tripMode) {
+      this.tripMode = tripMode
+    },
     updateSelectedCountries() {
       if (this.quotes.length > 0 && this.places.length > 0) {
         const quotes = this.getQuotesForAllCountries(this.quotes, this.places, this.budget, this.directOnly)
@@ -176,8 +190,8 @@ export default {
       }
     },
       navigateToSkyscannerFlights(airportCode) {
-      if(airportCode && this.origin.code && this.departDate && this.returnDate) {
-        window.open(`https://www.skyscanner.se/transport/flights/${this.origin.code}/${airportCode}/${this.departDate}/${this.returnDate}/?adultsv2=1&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false`)
+      if(airportCode && this.isValidSearch()) {
+        window.open(`https://www.skyscanner.se/transport/flights/${this.origin.code}/${airportCode}/${this.departDate}/${this.returnDate ? this.returnDate + '/' : ''}?adultsv2=1&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false`)
       }
     },
     closeDialog() {

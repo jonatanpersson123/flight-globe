@@ -1,5 +1,9 @@
 <template>
     <div id="search-container">
+        <el-radio-group v-model="tripMode" @change="tripModeChange()">
+            <el-radio label="round">Roundtrip</el-radio>
+            <el-radio label="one">One way</el-radio>
+        </el-radio-group>
         <SearchControlsAirport v-on="$listeners" class="full-width" />
         <div id="date-container">
             <div>
@@ -15,9 +19,10 @@
             <div>
                 <el-date-picker 
                     v-model="returnDate"
+                    :disabled="tripMode == 'one'"
                     @change="returnDateChange()"
                     type="date"
-                    placeholder="Return"
+                    :placeholder="returnDatePlacehoder"
                     format="yyyy-MM-dd"
                     value-format="yyyy-MM-dd">
                 </el-date-picker>
@@ -56,8 +61,14 @@
             returnDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0,10),
             directFlights: false,
             budget: 4000,
-            maxBudget: 15000
+            maxBudget: 15000,
+            tripMode: 'round'
         }),
+        computed: {
+            returnDatePlacehoder()  {
+                return this.tripMode == 'round' ? 'Return' : '(One way)'
+            }
+        },
         methods: {
             departDateChange() {
                 this.$emit('onDepartDateChange', this.departDate)
@@ -71,9 +82,19 @@
             budgetChange() {
                 const newBudget = this.budget < this.maxBudget ? this.budget : null
                 this.$emit('onBudgetChange', newBudget)
+            },
+            tripModeChange() {
+                this.$emit('onTripModeChange', this.tripMode)
+                if (this.tripMode === 'round') {
+                    this.returnDate = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0,10)
+                } else {
+                    this.returnDate = ''
+                }
+                this.returnDateChange()
             }
         },
         mounted() {
+            this.tripModeChange()
             this.departDateChange()
             this.returnDateChange()
             this.budgetChange()
@@ -112,6 +133,10 @@
     #date-container {
         display: flex;
         justify-content: space-between;
+    }
+
+    .el-radio {
+        color: white;
     }
 
     .el-date-editor.el-input {
