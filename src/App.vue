@@ -1,12 +1,14 @@
 <template>
-  <div>
-    <SearchControls 
+  <div id="main">
+    <SearchControls
       @onOriginChange="updateOrigin($event)"
       @onDepartDateChange="updateDepartDate($event)"
       @onReturnDateChange="updateReturnDate($event)"
       @onDirectFlightsChange="updateDirectFlights($event)"
       @onBudgetChange="updateBudget($event)"
       @onTripModeChange="updateTripMode($event)"
+      @flexibleDatesChange="updateFlexibleDates($event)"
+      @onSearch="search()"
     ></SearchControls>
     <CountryInfo :countryName="countryName" />
     <CountryQuotesDialog
@@ -160,15 +162,12 @@ export default {
     },
     updateOrigin(origin) {
       this.origin = origin
-      this.search()
     },
     updateDepartDate(date) {
       this.departDate = date
-      this.search()
     },
     updateReturnDate(date) {
       this.returnDate = date
-      this.search()
     },
     updateDirectFlights(directOnly) {
       this.directOnly = directOnly
@@ -180,6 +179,8 @@ export default {
     },
     updateTripMode(tripMode) {
       this.tripMode = tripMode
+    },
+    updateFlexibleDates(range) {
     },
     updateSelectedCountries() {
       if (this.quotes.length > 0 && this.places.length > 0) {
@@ -206,13 +207,13 @@ export default {
     margin: 0;
   }
 
-  html, body, #main {
+  html, body, #main{
     height: 100%;
     width: 100%;
   }
 
-  input::placeholder, .el-icon-date, .el-icon-map-location {
-    color: #606266 !important;
+  #menu {
+    height: 100%;
   }
 
   .el-dialog {
@@ -221,8 +222,8 @@ export default {
     right: 10px;
     margin: 0 !important;
     width: unset !important;
-    background-color: #135384 !important;
-    border-radius: 4px;
+    background-color: rgba(47, 55, 72, 0.9) !important;;
+    border-radius: 6px !important;
     min-width: 400px !important;
   }
 
@@ -236,6 +237,64 @@ export default {
 
   .el-dialog__close {
     color: white !important;
+  }
+
+  .el-input input {
+    background-color: #4A5568;
+    border: none;
+    color: white;
+  }
+
+  .el-input__icon {
+    color: white;
+  }
+
+  .el-radio__input.is-checked+.el-radio__label, .el-checkbox__input.is-checked+.el-checkbox__label {
+    color: #AFBBCE !important;
+  }
+
+  .el-radio__input.is-checked .el-radio__inner, .el-checkbox__input.is-checked .el-checkbox__inner {
+    border-color: #687FE6 !important;
+    background: #687FE6 !important;
+  }
+
+  .el-button {
+    background-color: #687FE6 !important;
+    border: none !important;
+    font-weight: bold !important;
+  }
+
+  .el-button, .el-input__inner {
+    border-radius: 6px !important;
+  }
+
+  .el-radio, .el-checkbox {
+    color: #AFBBCE !important;
+    font-weight: bold !important;
+  }
+
+  .el-radio__inner, .el-checkbox__inner {
+    border: none !important;
+    background-color: #1A202C !important;
+  }
+
+  .el-checkbox__inner {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .el-checkbox__inner::after {
+    left: 6px !important;
+    top: 2px !important;
+  }
+
+  .el-slider__bar {
+    background-color: #687FE6 !important;
+  }
+
+  .el-slider__button {
+    border: 3px solid #687FE6 !important;
+
   }
 
   .full-width {
@@ -255,6 +314,11 @@ export default {
 
   .flex1 {
     flex: 1;
+  }
+
+  * {
+    user-select: none;
+    outline: none;
   }
 
   /* @media only screen and (min-width: 2000px) {

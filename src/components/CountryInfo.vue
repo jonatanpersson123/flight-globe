@@ -15,7 +15,7 @@
         position: absolute;
         right: 20px;
         top: 20px;
-        color: cornflowerblue;
+        color: #687FE6;
         font-size: 2em;
     }
 </style>

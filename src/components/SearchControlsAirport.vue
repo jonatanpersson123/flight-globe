@@ -2,7 +2,7 @@
     <el-autocomplete
         v-model="origin"
         :fetch-suggestions="querySearch"
-        placeholder="From"
+        placeholder="Enter your origin"
         prefix-icon="el-icon-map-location"
         @select="handleSelect">
     </el-autocomplete>

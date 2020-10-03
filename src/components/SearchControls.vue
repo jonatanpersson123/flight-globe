@@ -1,40 +1,102 @@
 <template>
-    <div id="search-container">
-        <el-radio-group v-model="tripMode" @change="tripModeChange()">
-            <el-radio label="round">Roundtrip</el-radio>
-            <el-radio label="one">One way</el-radio>
-        </el-radio-group>
-        <SearchControlsAirport v-on="$listeners" class="full-width" />
-        <div id="date-container">
-            <div>
-                <el-date-picker
-                    v-model="departDate"
-                    @change="departDateChange()"
-                    type="date"
-                    placeholder="Depart"
-                    format="yyyy-MM-dd"
-                    value-format="yyyy-MM-dd">
-                </el-date-picker>
+    <div>
+        <div id="menu-container">
+            <div id="logo-container">
+                <i class="el-icon-s-promotion"></i>
+                <span class="logo-text">Flight</span>
+                <span class="logo-text purple">Globe</span>
             </div>
-            <div>
-                <el-date-picker 
-                    v-model="returnDate"
-                    :disabled="tripMode == 'one'"
-                    @change="returnDateChange()"
-                    type="date"
-                    :placeholder="returnDatePlacehoder"
-                    format="yyyy-MM-dd"
-                    value-format="yyyy-MM-dd">
-                </el-date-picker>
+            <div class="delimiter-thin"></div>
+            <div class="flex1">
+                <div class="padd-content space-top">
+                    <el-radio-group v-if="false" class="radio-group" v-model="tripMode" @change="tripModeChange()">
+                        <el-radio label="round">Roundtrip</el-radio>
+                        <el-radio label="one">One way</el-radio>
+                    </el-radio-group>
+                    <h5>From</h5>
+                    <SearchControlsAirport v-on="$listeners" class="full-width" />
+                    <div class="inputs-container">
+                        <div class="control-container">
+                            <h5>Depart</h5>
+                            <el-date-picker
+                                v-model="departDate"
+                                @change="departDateChange()"
+                                type="date"
+                                format="yyyy-MM-dd"
+                                value-format="yyyy-MM-dd">
+                            </el-date-picker>
+                        </div>
+                        <div class="control-container">
+                            <h5>Return</h5>
+                            <el-date-picker 
+                                v-model="returnDate"
+                                :disabled="tripMode == 'one'"
+                                @change="returnDateChange()"
+                                type="date"
+                                format="yyyy-MM-dd"
+                                value-format="yyyy-MM-dd">
+                            </el-date-picker>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="delimiter"></div>
+
+                <div class="control-container padd-content flex">
+                    <h5>Flight Options</h5>
+                    <el-checkbox class="space-top"
+                        v-model="directFlights" 
+                        @change="directFlightsChange()"
+                        label="Direct flights only">
+                    </el-checkbox>
+                    <el-checkbox class="space-top"
+                        v-model="flexibleDatesEnabled" 
+                        @change="flexibleDatesEnabledChange()"
+                        label="Flexible dates">
+                    </el-checkbox>
+                    <el-checkbox class="space-top"
+                        v-model="budgetEnabled" 
+                        label="Budget">
+                    </el-checkbox>
+                </div>
+                <div v-if="flexibleDatesEnabled" class="inputs-container padd-content space-top flex">
+                    <div>
+                        <h5>Minimum days</h5>
+                        <el-select v-model="flexibleMin">
+                            <el-option
+                            v-for="item in flexibleOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </div>
+                    <div>
+                        <h5>Maximum days</h5>
+                        <el-select v-model="flexibleMax">
+                            <el-option
+                            v-for="item in flexibleOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </div>
+                </div>
+
+                <div class="delimiter"></div>
+                
+                <div id="search-button-container">
+                    <el-button type="primary" @click="search()">Search</el-button>
+                </div>
             </div>
         </div>
-        <el-checkbox 
-            v-model="directFlights" 
-            @change="directFlightsChange()"
-            label="Direct flights only">
-        </el-checkbox>
-        <div id="budget" class="flex full-width">
-            <span>Budget</span>
+        <div v-if="budgetEnabled" id="budget-container" class="flex flex-column">
+            <div class="flex space-between">
+                <h5 class="zero-space">Budget</h5>
+                <h5 class="zero-space">{{budget}}{{budget === maxBudget ? '+' : ''}} SEK</h5>
+            </div>
             <el-slider 
                 v-model="budget"
                 @input="budgetChange()"
@@ -42,7 +104,6 @@
                 :step="1000"
                 :max="maxBudget">
             </el-slider>
-            <span>{{budget}}{{budget === maxBudget ? '+' : ''}} SEK </span>
         </div>
     </div>
 </template>
@@ -58,8 +119,13 @@
         data: () => ({
             origin: null,
             departDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().slice(0,10),
-            returnDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0,10),
+            returnDate: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000).toISOString().slice(0,10),
             directFlights: false,
+            flexibleDatesEnabled: false,
+            flexibleMin: 0,
+            flexibleMax: 0,
+            nightsBetweenDates: 0,
+            budgetEnabled: false,
             budget: 4000,
             maxBudget: 15000,
             tripMode: 'round'
@@ -70,14 +136,51 @@
             }
         },
         methods: {
+            search() {
+                this.$emit('onSearch')
+            },
             departDateChange() {
                 this.$emit('onDepartDateChange', this.departDate)
+                this.flexibleDatesEnabled = false
             },
             returnDateChange() {
                 this.$emit('onReturnDateChange', this.returnDate)
+                this.flexibleDatesEnabled = false
             },
             directFlightsChange() {
                 this.$emit('onDirectFlightsChange', this.directFlights)
+            },
+            flexibleDatesEnabledChange() {
+                this.updateDates()
+            },
+            flexibleMinChange() {
+                this.$emit('flexibleDatesChange', [this.flexibleMin, this.flexibleMax])
+            },
+            flexibleMaxChange() {
+                this.$emit('flexibleDatesChange', [this.flexibleMin, this.flexibleMax])
+            },
+            updateDates() {
+                if (this.flexibleDatesEnabled && this.departDate && this.returnDate) {
+                    const getNightsBetweenDates = (departDate, returnDate) => {
+                        const timeDiff = Math.abs(new Date(returnDate).getTime() - new Date(departDate).getTime())
+                        const numberOfNights = Math.ceil(timeDiff / (1000 * 3600 * 24))
+                        return numberOfNights
+                    }
+                    this.nightsBetweenDates = getNightsBetweenDates(this.departDate, this.returnDate)
+                    this.flexibleOptions = this.createFlexibleOptions(this.nightsBetweenDates)
+                    this.flexibleMin = this.nightsBetweenDates
+                    this.flexibleMax = this.nightsBetweenDates
+                }
+            },
+            createFlexibleOptions(nightsBetweenDates) {
+                const options = []
+                for (let index = 1; index <= nightsBetweenDates; index++) {
+                    options.push({
+                        value: index,
+                        label: index.toString()
+                    })
+                }
+                return options
             },
             budgetChange() {
                 const newBudget = this.budget < this.maxBudget ? this.budget : null
@@ -86,7 +189,7 @@
             tripModeChange() {
                 this.$emit('onTripModeChange', this.tripMode)
                 if (this.tripMode === 'round') {
-                    this.returnDate = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0,10)
+                    this.returnDate = new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000).toISOString().slice(0,10)
                 } else {
                     this.returnDate = ''
                 }
@@ -103,19 +206,92 @@
 </script>
 
 <style scoped>
-    #search-container {
-        display: block;
-        background-color: #135384;
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        width: 310px;
-        padding: 12px;
-        border-radius: 4px;
+
+    h5 {
+        margin: 10px 0;
+        color: #AFBBCE;
+        font-weight: bold;
     }
 
-    #search-container > *:not(:first-child) {
+    #menu-container {
+        display: flex;
+        flex-direction: column;
+        /* background-color: #2F3748; */
+        background-color: rgba(47, 55, 72, 0.9);
+        width: 310px;        
+        border-radius: 6px;
+        overflow: hidden;
+        position: absolute;
+        top: 20px;
+        left: 20px;
+    }
+
+    /* #menu-container > *:not(:first-child) {
         margin-top: 10px;
+    } */
+
+    #logo-container {
+        height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .el-icon-s-promotion {
+        font-size: 28px;
+        margin: 0 4px 0 -4px;
+        color: #687FE6;
+    }
+
+    .logo-text {
+        color: white;
+        font-size: 22px;
+        font-weight: bold;
+        white-space: pre;
+    }
+
+    .logo-text.purple {
+        color: #687FE6;
+    }
+
+    .padd-content {
+        padding: 0 12px;
+    }
+
+    .radio-group {
+        margin: 8px 0; 
+    }
+
+    .box-row {
+        align-items: center;
+        height: 30px;
+    }
+
+    .space-between {
+        justify-content: space-between;
+    }
+
+    .space-top {
+        margin-top: 10px;
+    }
+
+    #search-button-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 20px 20px 20px;
+    }
+
+    #budget-container {
+        height: 44px;
+        background-color: rgba(47, 55, 72, 0.9);
+        position: absolute;
+        width: 320px;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 6px;
+        padding: 12px;
     }
 
     #budget {
@@ -126,30 +302,51 @@
         font-weight: 500;
     }
 
-    #budget > span {
-        margin: auto 0;
+    #budget-value {
+        min-width: 80px;
     }
 
-    #date-container {
+    .budget-text {
+        margin-right: 10px;
+    }
+
+    .inputs-container {
         display: flex;
         justify-content: space-between;
+    }
+
+    .zero-space {
+        margin: 0;
+    }
+
+    .control-container {
+        margin-top: 16px;
+        flex-direction: column;
+    }
+
+    .delimiter-thin {
+        width: 100%;
+        border-bottom: 1px solid #1A202C;
+    }
+
+    .delimiter {
+        width: 100%;
+        margin: 20px 0;
+        border-bottom: 1px solid #1A202C;
     }
 
     .el-radio {
         color: white;
     }
 
-    .el-date-editor.el-input {
-        width: 150px;
+
+    .el-date-editor.el-input, .el-select {
+        width: 137px;
     }
 
     .el-checkbox {
         color: white;
-    }
-
-    .el-slider {
-        width: 148px;
-        margin: 0 18px
+        margin-right: 10px;
     }
 </style>
     
