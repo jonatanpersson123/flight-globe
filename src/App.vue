@@ -181,6 +181,34 @@ export default {
       this.tripMode = tripMode
     },
     updateFlexibleDates(range) {
+      const min = range[0]
+      const max = range[1]
+
+      const timeDiff = new Date(this.returnDate).getTime() - new Date(this.departDate).getTime()
+      const numberOfNights = Math.ceil(timeDiff / (1000 * 3600 * 24))
+
+      const scopeDays = numberOfNights
+      console.log(scopeDays)
+      let sum = 0
+      let trips = []
+
+      for(let i = 0; i <= scopeDays; i++) {
+          // i = start date
+        const limit = Math.max(max, scopeDays)
+          for(let j = i; j <= limit; j++) {
+              // j = days
+              const duration = j - i
+              if(duration >= min && duration <= max) {
+                let departDate = new Date(this.departDate)
+                departDate.setDate(departDate.getDate() + i)
+                let returnDate = new Date(departDate)
+                returnDate.setDate(returnDate.getDate() + duration)
+                console.log([departDate, returnDate])
+                sum++
+              }
+          }
+      }
+      console.log(sum)
     },
     updateSelectedCountries() {
       if (this.quotes.length > 0 && this.places.length > 0) {
