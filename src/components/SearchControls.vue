@@ -44,20 +44,21 @@
                 <div class="delimiter"></div>
 
                 <div class="control-container padd-content flex">
-                    <h5>Flight Options</h5>
+                    <h5>Flight Filters</h5>
                     <el-checkbox class="space-top"
                         v-model="directFlights" 
                         @change="directFlightsChange()"
                         label="Direct flights only">
                     </el-checkbox>
-                    <el-checkbox class="space-top"
+                    <el-checkbox v-if="false" class="space-top"
                         v-model="flexibleDatesEnabled" 
                         @change="flexibleDatesEnabledChange()"
                         label="Flexible dates">
                     </el-checkbox>
                     <el-checkbox class="space-top"
                         v-model="budgetEnabled" 
-                        label="Budget">
+                        @change="budgetEnabledChange()"
+                        label="Budget limit">
                     </el-checkbox>
                 </div>
                 <div v-if="flexibleDatesEnabled" class="inputs-container padd-content space-top flex">
@@ -126,7 +127,7 @@
             flexibleMax: 0,
             nightsBetweenDates: 0,
             budgetEnabled: false,
-            budget: 4000,
+            budget: null,
             maxBudget: 15000,
             tripMode: 'round'
         }),
@@ -185,6 +186,13 @@
             budgetChange() {
                 const newBudget = this.budget < this.maxBudget ? this.budget : null
                 this.$emit('onBudgetChange', newBudget)
+            },
+            budgetEnabledChange() {
+                if(!this.budgetEnabled) {
+                    this.$emit('onBudgetChange', null)
+                } else {
+                    this.budget = !this.budget ? this.maxBudget : this.budget
+                }
             },
             tripModeChange() {
                 this.$emit('onTripModeChange', this.tripMode)
