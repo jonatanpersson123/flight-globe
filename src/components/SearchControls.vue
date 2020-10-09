@@ -1,7 +1,7 @@
 <template>
     <div>
-        <div id="menu-container">
-            <div id="logo-container">
+        <div class="side-container">
+            <div class="title-container">
                 <i class="el-icon-s-promotion"></i>
                 <span class="logo-text">Flight</span>
                 <span class="logo-text purple">Globe</span>
@@ -14,7 +14,7 @@
                         <el-radio label="one">One way</el-radio>
                     </el-radio-group>
                     <h5>From</h5>
-                    <SearchControlsAirport v-on="$listeners" class="full-width" />
+                    <SearchControlsAirport class="full-width" @onOriginChange="originChange($event)" />
                     <div class="inputs-container">
                         <div class="control-container">
                             <h5>Depart</h5>
@@ -89,7 +89,7 @@
                 <div class="delimiter"></div>
                 
                 <div id="search-button-container">
-                    <el-button type="primary" @click="search()">Search</el-button>
+                    <el-button class="rounded" :disabled="!validSearch" type="primary" @click="search()">Search</el-button>
                 </div>
             </div>
         </div>
@@ -134,11 +134,24 @@
         computed: {
             returnDatePlacehoder()  {
                 return this.tripMode == 'round' ? 'Return' : '(One way)'
+            },
+            validSearch() {
+                console.log(this.origin)
+                 if (this.tripMode === 'round') {
+                    return this.origin?.code && this.departDate && this.returnDate
+                } else {
+                    return this.origin?.code && this.departDate
+                }
             }
         },
         methods: {
             search() {
                 this.$emit('onSearch')
+            },
+            originChange(origin) {
+                console.log(origin)
+                this.origin = origin
+                this.$emit('onOriginChange', origin)
             },
             departDateChange() {
                 this.$emit('onDepartDateChange', this.departDate)
@@ -215,16 +228,9 @@
 
 <style scoped>
 
-    h5 {
-        margin: 10px 0;
-        color: #AFBBCE;
-        font-weight: bold;
-    }
-
-    #menu-container {
+    .side-container {
         display: flex;
         flex-direction: column;
-        /* background-color: #2F3748; */
         background-color: rgba(47, 55, 72, 0.9);
         width: 310px;        
         border-radius: 6px;
@@ -238,7 +244,7 @@
         margin-top: 10px;
     } */
 
-    #logo-container {
+    .title-container {
         height: 60px;
         display: flex;
         justify-content: center;
@@ -262,10 +268,6 @@
         color: #687FE6;
     }
 
-    .padd-content {
-        padding: 0 12px;
-    }
-
     .radio-group {
         margin: 8px 0; 
     }
@@ -277,10 +279,6 @@
 
     .space-between {
         justify-content: space-between;
-    }
-
-    .space-top {
-        margin-top: 10px;
     }
 
     #search-button-container {

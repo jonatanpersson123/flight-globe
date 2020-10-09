@@ -1,19 +1,33 @@
 <template>
-    <div class="table">
-        <span v-if="data.length === 0">
-            No data available
-        </span>
-        <div v-else>
-            <div v-for="item in data" :key="item.code" class="flex table-row">
-                <div class="destination">{{item.name}}, {{item.code}}</div>
-                <div class="flex">
-                    <div v-if="item.directPrice" class="chip">
-                        <span class="text">DIRECT {{item.directPrice}}</span>
+    <div class="side-container">
+        <div class="title-container">
+            <span class="logo-text">{{title}}</span>
+        </div>
+        <div class="delimiter-thin"></div>
+        <div class="table padd-content">
+            <span v-if="data.length === 0">
+                No data available
+            </span>
+            <div class="space-top" v-else>
+                <h5>Flights {{date.departDate}}{{date.returnDate ? ' - ' + date.returnDate : ''}}</h5>
+                <div v-for="item in data" :key="item.code" class="flex table-row space-top">
+                    <!-- <div class="flight-container">{{item.name}}, {{item.code}}</div> -->
+                    <div class="flight-container space-top">
+                        <div class="flex flight-header">
+                            <span class="location">{{item.name}}, {{item.code}}</span>    
+                            <el-button @click="quoteClick(item.code)" type="primary" icon="el-icon-right" circle></el-button>
+                        </div>
+                        <div class="space-top flex price-containers">
+                            <div v-bind:class="{ disabled: !item.directPrice }" class="price-container">
+                                <div class="chip">DIRECT</div>
+                                <span class="price">{{item.directPrice ? item.directPrice + ' SEK' : '-'}}</span>
+                            </div>
+                            <div v-bind:class="{ disabled: !item.indirectPrice }" class="price-container">
+                                <div class="chip">+1 STOPS</div>
+                                <span class="price">{{item.indirectPrice ? item.indirectPrice + ' SEK' : '-'}}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div v-if="item.indirectPrice" class="chip">
-                        <span class="text">MULTI {{item.indirectPrice}}</span>
-                    </div>
-                    <el-button class="flight-button" icon="el-icon-arrow-right" circle @click="quoteClick(item.code)"></el-button>
                 </div>
             </div>
         </div>
@@ -23,7 +37,7 @@
 <script>
     export default {
         name: 'CountryQuotesDialogTable',
-        props: ['data'],
+        props: ['data', 'title', 'date'],
         data: () => ({
         }),
         methods: {
@@ -42,14 +56,13 @@
 <style scoped>
     .table {
         color: white;
+        padding-bottom: 10px;
     }
 
     .table-row {
-        height: 50px;
         justify-content: space-between;
         vertical-align: center;
         align-items: center;
-        border-bottom: 1px solid white;
     }
 
     .destination {
@@ -57,20 +70,19 @@
     }
 
     .chip {
-        border: 1px solid white;
+        background-color: #4A5568;
         padding: 4px;
-        width: 80px;
+        font-weight: bold;
+        font-size: 12px;
+        width: 64px;
         height: 16px;
         border-radius: 14px;
         text-align: center;
     }
 
-    .chip:not(:first-child) {
-        margin-left: 4px;
-    }
-
-    .chip .text {
-        font-size: 12px;
+    .chip.purple {
+        color: #253376;
+        background-color: #8E9BDA;
     }
     
     .flight-button {
@@ -78,6 +90,75 @@
         padding: 5px !important; 
         color: white;
         margin-left: 8px;
+    }
+
+    .flight-container {
+        background-color: #4A5568;
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+    .flight-header {
+        justify-content: space-between;
+    }
+
+    .price-containers {
+        justify-content: space-between;
+    }
+
+    .price-container {
+        width: 134px;
+        padding: 8px;
+        background-color: #2C3242;
+        border-radius: 6px;
+    }
+
+    .price {
+        margin-top: 10px;
+        display: block;
+        font-weight: bold;
+        font-size: 22px;
+    }
+
+    /* DUPLICATES */ 
+
+    .side-container {
+        display: flex;
+        flex-direction: column;
+        background-color: rgba(47, 55, 72, 0.9);
+        width: 360px;        
+        border-radius: 6px;
+        overflow: hidden;
+        /* position: absolute;
+        top: 20px;
+        left: 20px;
+        */
+    } 
+
+    .title-container {
+        height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .logo-text {
+        width: 230px;
+        color: white;
+        font-size: 22px;
+        font-weight: bold;
+        word-break: break-word;
+        text-align: center;
+    }
+
+    .logo-text.purple {
+        color: #687FE6;
+    }
+
+    .delimiter-thin {
+        width: 100%;
+        border-bottom: 1px solid #1A202C;
     }
     
 </style>

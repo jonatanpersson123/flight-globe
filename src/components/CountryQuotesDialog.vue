@@ -1,11 +1,12 @@
 <template>
     <el-dialog
       :modal="false"
-      :title="titleText" 
       :visible="show"
       @close="onClose()">
       <CountryQuotesDialogTable 
         v-on="$listeners"
+        :title="titleText" 
+        :date="countryQuotesData.date"
         :data="countryQuotesData.airportsData"
       ></CountryQuotesDialogTable>
     </el-dialog>
@@ -30,7 +31,7 @@
         computed: {
             titleText() {
                 const {country, code} = this.countryQuotesData.countryData
-                return `Prices - ${country} (${code})`
+                return `${country} (${code})`
             }
         },
         mounted() {

@@ -131,7 +131,8 @@ export default {
         axios.get(queryString).then(response => {
           const quotesInfo = this.getQuotesForCountry(response.data.Quotes, response.data.Places)
           const airportsData = this.getQuotesForAirports(quotesInfo)
-          this.countryQuotesDialogData = { countryData, airportsData }
+          const date = {departDate: this.departDate, returnDate: this.returnDate}
+          this.countryQuotesDialogData = { countryData, airportsData, date }
           this.showCountryQuotesDialog = true
         }).catch(error => console.log(error)) 
       }
@@ -226,7 +227,7 @@ export default {
     closeDialog() {
       this.showCountryQuotesDialog = false
     }
-  }
+  },
 }
 </script>
 
@@ -246,17 +247,20 @@ export default {
 
   .el-dialog {
     position: absolute !important;
-    top: 10px;
-    right: 10px;
+    top: 20px;
+    right: 20px;
     margin: 0 !important;
     width: unset !important;
     background-color: rgba(47, 55, 72, 0.9) !important;;
     border-radius: 6px !important;
-    min-width: 400px !important;
+  }
+
+  .el-dialog__header {
+    padding: 0 !important;
   }
 
   .el-dialog__body {
-    padding-top: 10px !important;
+    padding: 0px !important;
   }
 
   .el-dialog__title {
@@ -292,8 +296,17 @@ export default {
     font-weight: bold !important;
   }
 
-  .el-button, .el-input__inner {
+  .el-button.is-disabled, .disabled {
+    opacity: 0.6 !important;
+    pointer-events: none;
+  }
+
+  .el-button.rounded, .el-input__inner {
     border-radius: 6px !important;
+  }
+
+  .el-button.is-circle {
+    padding: 4px !important;
   }
 
   .el-radio, .el-checkbox {
@@ -342,6 +355,20 @@ export default {
 
   .flex1 {
     flex: 1;
+  }
+
+  .space-top {
+    margin-top: 10px;
+  }
+
+  .padd-content {
+    padding: 0 12px;
+  }
+
+  h5 {
+    margin: 10px 0;
+    color: white !important;
+    font-weight: bold;
   }
 
   * {
