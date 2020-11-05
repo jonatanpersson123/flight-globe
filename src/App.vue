@@ -44,6 +44,8 @@ export default {
   },
 
   data: () => ({
+    quoteAPIURL: 'https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/SE/SEK/en-US',
+    flightPriceURL: 'https://www.skyscanner.se/transport/flights',
     countryName: '',
     showCountryQuotesDialog: false,
     countryQuotesDialogData: null,
@@ -94,7 +96,7 @@ export default {
     getQuotesInfo(quotes, places) {
         return quotes.map(q => {
           const stationInfo = places.find(p => p.Type === 'Station' && p.PlaceId === q.OutboundLeg.DestinationId)
-          const countryInfo = places.find(p => p.Type === 'Country' && p.Name === stationInfo.CountryName)
+          const countryInfo = places.find(p => p.Type === 'Nation' && p.Name === stationInfo.CountryName)
           return {
               country: {
                 name: countryInfo ? countryInfo.Name : stationInfo.CountryName,
@@ -111,7 +113,7 @@ export default {
     },
 
     getQueryString(destination) {
-      return `https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsequotes/v1.0/SE/SEK/en-US/${this.origin.code}/${destination ? destination : 'anywhere'}/${this.departDate}/${this.returnDate ? this.returnDate : ''}`
+      return `${this.quoteAPIURL}/${this.origin.code}/${destination ? destination : 'anywhere'}/${this.departDate}/${this.returnDate ? this.returnDate : ''}`
     },
 
     isValidSearch() {
@@ -189,7 +191,6 @@ export default {
       const numberOfNights = Math.ceil(timeDiff / (1000 * 3600 * 24))
 
       const scopeDays = numberOfNights
-      console.log(scopeDays)
       let sum = 0
       let trips = []
 
@@ -209,7 +210,6 @@ export default {
               }
           }
       }
-      console.log(sum)
     },
     updateSelectedCountries() {
       if (this.quotes.length > 0 && this.places.length > 0) {
@@ -219,9 +219,9 @@ export default {
         this.selectedCountries = []
       }
     },
-      navigateToSkyscannerFlights(airportCode) {
-      if(airportCode && this.isValidSearch()) {
-        window.open(`https://www.skyscanner.se/transport/flights/${this.origin.code}/${airportCode}/${this.departDate}/${this.returnDate ? this.returnDate + '/' : ''}?adultsv2=1&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false`)
+    navigateToSkyscannerFlights(airportCode) {
+      if (airportCode && this.isValidSearch()) {
+        window.open(`${flightPriceURL}/${this.origin.code}/${airportCode}/${this.departDate}/${this.returnDate ? this.returnDate + '/' : ''}?adultsv2=1&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false`)
       }
     },
     closeDialog() {
@@ -241,6 +241,10 @@ export default {
     width: 100%;
   }
 
+  body {
+    overflow: hidden;
+  }
+
   #menu {
     height: 100%;
   }
@@ -253,6 +257,8 @@ export default {
     width: unset !important;
     background-color: rgba(47, 55, 72, 0.9) !important;;
     border-radius: 6px !important;
+    max-height: 90vh;
+    display: flex;
   }
 
   .el-dialog__header {
@@ -375,10 +381,4 @@ export default {
     user-select: none;
     outline: none;
   }
-
-  /* @media only screen and (min-width: 2000px) {
-    #search-container {
-      left: 10% !important;
-    }
-  } */
 </style>
