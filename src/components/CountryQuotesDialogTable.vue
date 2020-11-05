@@ -57,6 +57,7 @@
     .table {
         color: white;
         padding-bottom: 10px;
+        overflow-y: auto;
     }
 
     .table-row {
@@ -129,15 +130,11 @@
         background-color: rgba(47, 55, 72, 0.9);
         width: 360px;        
         border-radius: 6px;
-        overflow: hidden;
-        /* position: absolute;
-        top: 20px;
-        left: 20px;
-        */
+        height: 100%;
     } 
 
     .title-container {
-        height: 60px;
+        flex: 0 0 60px;
         display: flex;
         justify-content: center;
         align-items: center;
