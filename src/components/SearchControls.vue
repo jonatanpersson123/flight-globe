@@ -9,10 +9,6 @@
             <div class="delimiter-thin"></div>
             <div class="flex1">
                 <div class="padd-content space-top">
-                    <el-radio-group v-if="false" class="radio-group" v-model="tripMode" @change="tripModeChange()">
-                        <el-radio label="round">Roundtrip</el-radio>
-                        <el-radio label="one">One way</el-radio>
-                    </el-radio-group>
                     <h5>From</h5>
                     <SearchControlsAirport class="full-width" @onOriginChange="originChange($event)" />
                     <div class="inputs-container">
@@ -22,6 +18,7 @@
                                 v-model="departDate"
                                 @change="departDateChange()"
                                 type="date"
+                                placeholder="Select date"
                                 format="yyyy-MM-dd"
                                 value-format="yyyy-MM-dd">
                             </el-date-picker>
@@ -30,9 +27,9 @@
                             <h5>Return</h5>
                             <el-date-picker 
                                 v-model="returnDate"
-                                :disabled="tripMode == 'one'"
                                 @change="returnDateChange()"
                                 type="date"
+                                placeholder="Select date"
                                 format="yyyy-MM-dd"
                                 value-format="yyyy-MM-dd">
                             </el-date-picker>
@@ -119,8 +116,8 @@
         props: [],
         data: () => ({
             origin: null,
-            departDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().slice(0,10),
-            returnDate: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000).toISOString().slice(0,10),
+            departDate: null,
+            returnDate: null,
             directFlights: false,
             flexibleDatesEnabled: false,
             flexibleMin: 0,
@@ -136,7 +133,6 @@
                 return this.tripMode == 'round' ? 'Return' : '(One way)'
             },
             validSearch() {
-                console.log(this.origin)
                  if (this.tripMode === 'round') {
                     return this.origin?.code && this.departDate && this.returnDate
                 } else {
@@ -149,17 +145,22 @@
                 this.$emit('onSearch')
             },
             originChange(origin) {
-                console.log(origin)
                 this.origin = origin
                 this.$emit('onOriginChange', origin)
             },
             departDateChange() {
                 this.$emit('onDepartDateChange', this.departDate)
                 this.flexibleDatesEnabled = false
+                this.setTripMode()
             },
             returnDateChange() {
                 this.$emit('onReturnDateChange', this.returnDate)
                 this.flexibleDatesEnabled = false
+                this.setTripMode()
+            },
+            setTripMode() {
+                this.tripMode = this.departDate && this.returnDate ? 'round' : 'one'
+                this.tripModeChange()
             },
             directFlightsChange() {
                 this.$emit('onDirectFlightsChange', this.directFlights)
@@ -209,18 +210,9 @@
             },
             tripModeChange() {
                 this.$emit('onTripModeChange', this.tripMode)
-                if (this.tripMode === 'round') {
-                    this.returnDate = new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000).toISOString().slice(0,10)
-                } else {
-                    this.returnDate = ''
-                }
-                this.returnDateChange()
             }
         },
         mounted() {
-            this.tripModeChange()
-            this.departDateChange()
-            this.returnDateChange()
             this.budgetChange()
         }
     }
@@ -245,7 +237,7 @@
     } */
 
     .title-container {
-        height: 60px;
+        flex: 0 0 60px;
         display: flex;
         justify-content: center;
         align-items: center;
