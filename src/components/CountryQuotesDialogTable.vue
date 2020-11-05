@@ -5,14 +5,12 @@
         </div>
         <div class="delimiter-thin"></div>
         <div class="table padd-content">
-            <span v-if="data.length === 0">
+            <span v-if="data.length === 0" class="space-top no-data">
                 No data available
             </span>
-            <div class="space-top" v-else>
-                <h5>Flights {{date.departDate}}{{date.returnDate ? ' - ' + date.returnDate : ''}}</h5>
-                <div v-for="item in data" :key="item.code" class="flex table-row space-top">
-                    <!-- <div class="flight-container">{{item.name}}, {{item.code}}</div> -->
-                    <div class="flight-container space-top">
+            <div v-else class="space-top">
+                <div v-for="item in data" :key="item.code" class="flex table-row">
+                    <div class="flight-container">
                         <div class="flex flight-header">
                             <span class="location">{{item.name}}, {{item.code}}</span>    
                             <el-button @click="quoteClick(item.code)" type="primary" icon="el-icon-right" circle></el-button>
@@ -66,6 +64,10 @@
         align-items: center;
     }
 
+    .table-row:not(:first-child) {
+        margin-top: 10px;
+    }
+
     .destination {
         margin-right: 24px;
     }
@@ -102,6 +104,11 @@
 
     .flight-header {
         justify-content: space-between;
+    }
+
+    span.no-data {
+        text-align: center;
+        display: block;
     }
 
     .price-containers {
