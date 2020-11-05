@@ -221,7 +221,7 @@ export default {
     },
     navigateToSkyscannerFlights(airportCode) {
       if (airportCode && this.isValidSearch()) {
-        window.open(`${flightPriceURL}/${this.origin.code}/${airportCode}/${this.departDate}/${this.returnDate ? this.returnDate + '/' : ''}?adultsv2=1&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false`)
+        window.open(`${this.flightPriceURL}/${this.origin.code}/${airportCode}/${this.departDate}/${this.returnDate ? this.returnDate + '/' : ''}?adultsv2=1&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false`)
       }
     },
     closeDialog() {
