@@ -67,6 +67,7 @@ export default {
             globeElement.addEventListener('mouseup', this.onGlobeMouseUp, false)
             globeElement.addEventListener('mouseleave', this.onGlobeMouseLeave, false)
             document.addEventListener('keyup', this.onMouseKeyUp, false)
+            window.addEventListener('resize', this.onResize, false)
         },
 
         onGlobeMouseMove(event) {
@@ -112,6 +113,12 @@ export default {
             if (event.keyCode === 82) { // key: R
                 this.controls.autoRotate = !this.controls.autoRotate
             }
+        },
+
+        onResize(event) {
+            this.camera.aspect = window.innerWidth / window.innerHeight
+            this.camera.updateProjectionMatrix()
+            this.renderer.setSize (window.innerWidth, window.innerHeight)
         },
         
         setupRenderer(globeElement) {
