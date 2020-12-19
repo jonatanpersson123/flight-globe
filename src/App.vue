@@ -226,8 +226,11 @@ export default {
     },
     closeDialog() {
       this.showCountryQuotesDialog = false
+    },
+    created() {
+      document.title = 'FlightGlobe'
     }
-  },
+  }
 }
 </script>
 
