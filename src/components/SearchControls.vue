@@ -20,7 +20,8 @@
                                 type="date"
                                 placeholder="Select date"
                                 format="yyyy-MM-dd"
-                                value-format="yyyy-MM-dd">
+                                value-format="yyyy-MM-dd"
+                                :picker-options="departPickerOptions">
                             </el-date-picker>
                         </div>
                         <div class="control-container">
@@ -31,7 +32,8 @@
                                 type="date"
                                 placeholder="Select date"
                                 format="yyyy-MM-dd"
-                                value-format="yyyy-MM-dd">
+                                value-format="yyyy-MM-dd"
+                                :picker-options="returnPickerOptions">
                             </el-date-picker>
                         </div>
                     </div>
@@ -41,7 +43,7 @@
                 <div class="delimiter"></div>
 
                 <div class="control-container padd-content flex">
-                    <h5>Flight Filters</h5>
+                    <h5>Filters</h5>
                     <el-checkbox class="space-top"
                         v-model="directFlights" 
                         @change="directFlightsChange()"
@@ -114,7 +116,7 @@
             SearchControlsAirport
         },
         props: [],
-        data: () => ({
+        data: (vm) => ({
             origin: null,
             departDate: null,
             returnDate: null,
@@ -126,7 +128,21 @@
             budgetEnabled: false,
             budget: null,
             maxBudget: 15000,
-            tripMode: 'round'
+            tripMode: 'round',
+            departPickerOptions: {
+                firstDayOfWeek: 1,
+                disabledDate(date) {
+                    // Disables dates before current date 
+                    return new Date(date.toDateString()) < new Date(new Date().toDateString())
+                }
+            },
+            returnPickerOptions: {
+                firstDayOfWeek: 1,
+                disabledDate(date) {
+                    // Disables dates before departure date
+                    return vm.departDate == null ? true : new Date(date.toDateString()) < new Date(new Date(vm.departDate).toDateString())
+                }
+            }
         }),
         computed: {
             returnDatePlacehoder()  {
