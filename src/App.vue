@@ -96,7 +96,7 @@ export default {
     getQuotesInfo(quotes, places) {
         return quotes.map(q => {
           const stationInfo = places.find(p => p.Type === 'Station' && p.PlaceId === q.OutboundLeg.DestinationId)
-          const countryInfo = places.find(p => p.Type === 'Nation' && p.Name === stationInfo.CountryName)
+          const countryInfo = places.find(p => (p.Type === 'Nation' || p.Type === 'Country') && p.Name === stationInfo.CountryName)
           return {
               country: {
                 name: countryInfo ? countryInfo.Name : stationInfo.CountryName,
@@ -277,18 +277,25 @@ export default {
     color: white !important;
   }
 
+  .el-input input, .el-input input::placeholder {
+    color: #FFFFFF;
+  }
+
   .el-input input {
     background-color: #4A5568;
     border: none;
-    color: white;
   }
 
   .el-input__icon {
     color: white;
   }
 
+  .el-checkbox__label {
+    font-weight: normal;
+  }
+
   .el-radio__input.is-checked+.el-radio__label, .el-checkbox__input.is-checked+.el-checkbox__label {
-    color: #AFBBCE !important;
+    color: #FFFFFF !important;
   }
 
   .el-radio__input.is-checked .el-radio__inner, .el-checkbox__input.is-checked .el-checkbox__inner {
@@ -309,15 +316,11 @@ export default {
 
   .el-button.rounded, .el-input__inner {
     border-radius: 6px !important;
+    color: #FFFFFF !important;
   }
 
   .el-button.is-circle {
     padding: 4px !important;
-  }
-
-  .el-radio, .el-checkbox {
-    color: #AFBBCE !important;
-    font-weight: bold !important;
   }
 
   .el-radio__inner, .el-checkbox__inner {
