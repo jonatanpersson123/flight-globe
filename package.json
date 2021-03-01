@@ -14,7 +14,7 @@
     "core-js": "^3.6.5",
     "element-ui": "^2.13.2",
     "express": "^4.17.1",
-    "three": "^0.118.3",
+    "three": "^0.125.0",
     "three-orbitcontrols": "^2.110.3",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
