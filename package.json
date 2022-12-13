@@ -13,7 +13,7 @@
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
     "element-ui": "^2.13.2",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "three": "^0.118.3",
     "three-orbitcontrols": "^2.110.3",
     "vue": "^2.6.11",
